@@ -106,16 +106,16 @@ def test_hook_once_in_skill_or_false_is_not_reported(tmp_path):
 
 def test_hook_once_reports_line_of_setting_handler(tmp_path):
     settings = (
-        '{\n'
+        "{\n"
         '  "hooks": {\n'
         '    "PreToolUse": [{\n'
         '      "hooks": [\n'
         '        {"type": "command", "command": "cmd_a", "once": false},\n'
         '        {"type": "command", "command": "cmd_b", "once": true}\n'
-        '      ]\n'
-        '    }]\n'
-        '  }\n'
-        '}\n'
+        "      ]\n"
+        "    }]\n"
+        "  }\n"
+        "}\n"
     )
     write(tmp_path, ".claude/settings.json", settings)
     _, rep = audit(tmp_path)
