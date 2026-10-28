@@ -563,6 +563,10 @@ class Auditor:
         full = " ".join([command, *args])
         url = h.get("url") if isinstance(h.get("url"), str) else ""
         line = self.line_of(text, command or url or "")
+        if self.is_claude_code_file(path) and path.name != "SKILL.md" and h.get("once") is True:
+            once_line = self.line_of(text, '"once"') or self.line_of(text, "once:") or line
+            self.add("HOOK-009", "info", "hooks", f"{event} hook sets once: true outside a skill", path, once_line, "once: true",
+                     "Remove once: true or move the hook into a SKILL.md front matter block; Claude Code only honours once on skill hooks and runs this handler on every matching event.")
         if htype == "http":
             # https://code.claude.com/docs/en/hooks: an http hook POSTs the event JSON (tool input included) to url.
             host = re.sub(r"^[a-z]+://", "", url).split("/")[0].split("@")[-1]
