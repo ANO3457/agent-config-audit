@@ -104,6 +104,26 @@ def test_hook_once_in_skill_or_false_is_not_reported(tmp_path):
     assert not by_id(rep, "HOOK-009")
 
 
+def test_hook_once_reports_line_of_setting_handler(tmp_path):
+    settings = (
+        '{\n'
+        '  "hooks": {\n'
+        '    "PreToolUse": [{\n'
+        '      "hooks": [\n'
+        '        {"type": "command", "command": "cmd_a", "once": false},\n'
+        '        {"type": "command", "command": "cmd_b", "once": true}\n'
+        '      ]\n'
+        '    }]\n'
+        '  }\n'
+        '}\n'
+    )
+    write(tmp_path, ".claude/settings.json", settings)
+    _, rep = audit(tmp_path)
+    found = by_id(rep, "HOOK-009")
+    assert len(found) == 1
+    assert found[0]["line"] == 6
+
+
 def test_parser_reads_the_documented_shape():
     fm = 'hooks:\n  PreToolUse:\n    - matcher: "Bash"\n      hooks:\n        - type: command\n          command: "./s.sh"\n'
     assert front_matter_hooks(fm) == {

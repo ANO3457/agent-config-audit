@@ -564,7 +564,14 @@ class Auditor:
         url = h.get("url") if isinstance(h.get("url"), str) else ""
         line = self.line_of(text, command or url or "")
         if self.is_claude_code_file(path) and path.name != "SKILL.md" and h.get("once") is True:
-            once_line = self.line_of(text, '"once"') or self.line_of(text, "once:") or line
+            anchor = command or url or ""
+            start = max(text.find(anchor), 0) if anchor else 0
+            m = re.compile(r'"?once"?\s*:\s*true', re.IGNORECASE).search(text, start)
+            once_line = (
+                line_at(text, m.start())
+                if m
+                else (self.line_of(text, '"once"') or self.line_of(text, "once:") or line)
+            )
             self.add("HOOK-009", "info", "hooks", f"{event} hook sets once: true outside a skill", path, once_line, "once: true",
                      "Remove once: true or move the hook into a SKILL.md front matter block; Claude Code only honours once on skill hooks and runs this handler on every matching event.")
         if htype == "http":
